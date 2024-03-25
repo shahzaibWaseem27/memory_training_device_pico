@@ -1,12 +1,9 @@
-# Source: Electrocredible.com, Language: MicroPython
 from utime import ticks_ms, sleep_ms
 from machine import Pin
 from led_pattern import blink_led_pattern
-from init_pins import blueLEDPin, blue_LED_button_pin, yellowLEDPin, yellow_LED_button_pin
+from init_pins import blueLEDPin, blue_LED_button_pin, yellowLEDPin, yellow_LED_button_pin, greenLEDPin, redLEDPin
 from correct_button_presses import get_correct_button_presses
 
-led_onboard = Pin(25, Pin.OUT)
-led_onboard.on()
 
 user_button_presses = []
 user_pressed_correctly = True
@@ -35,7 +32,7 @@ blue_LED_button_pin.irq(trigger=Pin.IRQ_RISING, handler=handle_blue_led_button_p
 yellow_LED_button_pin.irq(trigger=Pin.IRQ_RISING, handler=handle_yellow_led_button_press)
 
 
-led_on_duration_ms = 600
+led_on_duration_ms = 700
 
 last_attempt_result = False
 
@@ -43,10 +40,7 @@ correct_button_presses = get_correct_button_presses(last_attempt_result)
 
 while True:
     
-    print(correct_button_presses)
-    blink_led_pattern(correct_button_presses, led_on_duration_ms)
-
-    print("press buttons in order")
+    blink_led_pattern(correct_button_presses, led_on_duration_ms, last_attempt_result)
 
     while(len(user_button_presses) != len(correct_button_presses)):
 
@@ -72,19 +66,26 @@ while True:
         
     if user_pressed_correctly:
         last_attempt_result = True
-        print("Correct")
+        greenLEDPin.on()
+        sleep_ms(3000)
+        greenLEDPin.off()
     else:
-        print("Wrong")
+        redLEDPin.on()
+        sleep_ms(3000)
+        redLEDPin.off()
 
     user_button_presses.clear()
     user_pressed_correctly = True
 
     correct_button_presses = get_correct_button_presses(last_attempt_result, len(correct_button_presses))
+    
+    led_on_duration_ms = int(0.8 * led_on_duration_ms) if last_attempt_result == True else 700
 
-    sleep_ms(2500)
+    sleep_ms(4000)
 
 
 
         
     
     
+
